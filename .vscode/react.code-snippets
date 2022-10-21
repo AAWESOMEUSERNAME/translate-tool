@@ -1,0 +1,53 @@
+{
+	// Place your ima-front workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+	// Placeholders with the same ids are connected.
+	// Example:
+	"React default component with prop defination": {
+		"scope": "typescriptreact",
+		"prefix": "reactpd",
+		"body": [
+			"import React from \"react\"",
+			"import styles from \"./index.module.scss\"",
+			"",
+			"export type $0Props = {}",
+			"",
+			"const $0: React.FC<$0Props> = (props) => {",
+			"    return <div>test</div>",
+			"}",
+			"",
+			"export default $0"
+
+		],
+		"description": "generate react component with prop defination"
+	},
+	"React component with prop defination": {
+		"scope": "typescriptreact",
+		"prefix": "reactp",
+		"body": [
+			"import React from \"react\"",
+			"import styles from \"./$0.module.scss\"",
+			"",
+			"export type $0Props = {}",
+			"",
+			"const $0: React.FC<$0Props> = (props) => {",
+			"    return <div>test</div>",
+			"}",
+			"",
+			"export default $0"
+
+		],
+		"description": "generate react component with prop defination"
+	},
+	"classname by variable": {
+		"scope": "typescriptreact",
+		"prefix": "eclass",
+		"body": [
+			"className={styles.$0}",
+		],
+		"description": "generate className from variable"
+	}
+}
