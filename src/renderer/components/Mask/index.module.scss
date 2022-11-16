@@ -1,0 +1,21 @@
+.mask {
+  z-index: 1;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  animation: show 0.5s 1 forwards;
+}
+
+@keyframes show {
+  0%{
+    opacity: 0;
+  }
+
+  100%{
+    opacity: 1;
+  }
+}

@@ -1,8 +1,8 @@
-import React from "react"
+import React, { ReactNode } from "react"
 import styles from "./index.module.scss"
 
 export type PageProps = {
-  children: React.ReactElement[] | React.ReactElement | string
+  children: ReactNode
 }
 
 const Page: React.FC<PageProps> = (props) => {

@@ -3,3 +3,27 @@
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
 @import '~antd/dist/antd.css';
+
+:root {
+  --success-color: #52c41a;
+  --error-color: #f5222d;
+  --warning-color: #faad14;
+}
+
+::-webkit-scrollbar-track
+{
+	background-color: #d9d9d9;
+	border-radius: 5px;
+}
+
+::-webkit-scrollbar
+{
+	width: 5px;
+	background-color: #d9d9d9;
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 5px;
+	background-color: #595959;
+}

@@ -1,5 +1,4 @@
 declare namespace Model {
-  type Language = 'en' | 'cn'
   interface ModelObject {
     id: number
     createdTime: string
@@ -8,13 +7,17 @@ declare namespace Model {
 
   interface Repository extends ModelObject {
     name: string
+    description: string
     articles: Article[]
   }
 
   interface Article extends ModelObject {
     name: string
-    language: Language
     paragraphes: Paragraph[]
+    description: string
+    progress: number
+    translationTags: string[]
+    coverPath?: string
     status: 'translating' | 'confirmed' // 翻译中 | 已定稿
   }
 
