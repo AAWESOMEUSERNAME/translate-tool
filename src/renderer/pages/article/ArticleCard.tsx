@@ -1,10 +1,9 @@
-import { Button, Card, Empty, Progress, Space } from "antd"
-import React, { useState } from "react"
-import { Link, useNavigate } from "react-router-dom";
+import { Button, Card, Progress, Space } from "antd";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Mask from "renderer/components/Mask";
 import { PAGE } from "renderer/constants/path";
-import styles from "./ArticleCard.module.scss"
-import ArticleExportModal from "./ArticleExportModal";
+import styles from "./ArticleCard.module.scss";
 
 
 const { Meta } = Card;
@@ -16,6 +15,9 @@ export type ArticleCardProps = DTO.ArticleInfo & {
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ id, name, description, coverPath, progress, createdTime, updatedTime, onEdit, onExport,onDelete }) => {
   const [showMenu, setShowMenu] = useState(false)
+
+  console.log('progress', progress);
+
 
   return <div className={styles.container}>
     {showMenu && <Mask onClick={() => setShowMenu(false)}>
@@ -32,7 +34,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ id, name, description, coverP
     </Mask>}
     <Card
       hoverable
-      cover={<div className={styles.cover} style={coverPath ? { backgroundImage: `file://${coverPath}` } : undefined} />}
+      cover={<div className={styles.cover} style={coverPath ? { backgroundImage: `url(file://${coverPath.replaceAll('\\','/')})` } : undefined} />}
       onClick={(e) => {
         setShowMenu(true)
       }}

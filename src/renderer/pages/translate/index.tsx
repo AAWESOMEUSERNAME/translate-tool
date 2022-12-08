@@ -1,14 +1,15 @@
 import {
   LoadingOutlined
 } from '@ant-design/icons'
-import { Input, Tabs, Typography } from "antd"
+import { Button, Input, message, Tabs, Typography } from "antd"
 import TextArea from "antd/lib/input/TextArea"
 import React, { useEffect, useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { LoadingMask } from "renderer/components/Mask"
 import Page from "renderer/components/Page"
-import _dao from "renderer/utils/dao"
+import dao from "renderer/utils/dao"
 import styles from "./index.module.scss"
+import ParagraphEditModal from './ParagraphEditModal'
 const { Title, Text } = Typography
 
 const TagEditor: React.FC<{ origin: string, onSave: (newTag: string) => void }> = ({ origin, onSave }) => {
@@ -46,10 +47,11 @@ export type TranslatePageProps = {}
 const TranslatePage: React.FC<TranslatePageProps> = (props) => {
   const [loading, setLoading] = useState(false)
   const [article, setArticle] = useState<Model.Article>()
-  const tags = article?.translationTags || []
+  const [tags, setTags] = useState<string[]>([])
   const [currentTag, setCurrentTag] = useState<string>(tags[0])
   const [saveLoading, setSaveLoading] = useState(false)
   const [edittingTag, setEdittingTag] = useState<string | null>(null)
+  const [showParagraphEdit, setShowParagraphEdit] = useState(false)
 
   const navigate = useNavigate()
   const { state } = useLocation()
@@ -60,13 +62,15 @@ const TranslatePage: React.FC<TranslatePageProps> = (props) => {
     return [
       <div key={p.id} className={styles.cell}>{p.content}</div>,
       <TranslateArea key={p.id + 'trans'} tag={currentTag} content={p.translation.find(t => t.tag === currentTag)?.content} onSave={(text) => {
+        if (!article) return
         setSaveLoading(true)
-        _dao.paragraph.saveTranslation(p.id, text).finally(() => {
-          try {
-            setSaveLoading(false)
-          } catch (error) {
-            console.warn(error)
-          }
+        dao.translation.save({
+          articleId: article.id,
+          paragraphId: p.id,
+          tag: currentTag,
+          content: text
+        }).finally(() => {
+          setSaveLoading(false)
         })
       }} />
     ]
@@ -77,10 +81,18 @@ const TranslatePage: React.FC<TranslatePageProps> = (props) => {
   }
 
   const loadArticle = (id: number) => {
-    _dao.article.detail(id)
-      .then(res => setArticle(res))
-      .catch(e => console.error(e))
-      .finally(() => setLoading(false))
+    Promise.all([
+      dao.article.detail(id),
+      dao.translation.listTag(id)
+    ]).then(([article, tags]) => {
+      setArticle(article)
+      setTags(tags)
+      setCurrentTag(tags[0])
+    }).catch(e =>
+      console.error(e)
+    ).finally(() =>
+      setLoading(false)
+    )
   }
 
   useEffect(() => {
@@ -91,6 +103,10 @@ const TranslatePage: React.FC<TranslatePageProps> = (props) => {
     {loading ?
       <LoadingMask /> :
       <div className={styles.container}>
+        {showParagraphEdit && article && <ParagraphEditModal articleId={article.id} onClose={() => {
+          setShowParagraphEdit(false)
+          refresh()
+        }} />}
         <div className={styles.title}>
           <Title>{article?.name}<LoadingOutlined hidden={!saveLoading} className={styles.saveLoading} /></Title>
           <Text>
@@ -100,25 +116,55 @@ const TranslatePage: React.FC<TranslatePageProps> = (props) => {
         <div className={styles.toolbar}>
           <div className={styles.operate}>
             <a onClick={() => navigate(-1)}>返回</a>
+            <Button type='link' onClick={() => setShowParagraphEdit(true)}>编辑原文</Button>
           </div>
-          <Tabs className={styles.tab} activeKey={currentTag} type="editable-card"
-            onEdit={(e, action) => {
-              if (!article) return
-              if (action === 'add') {
-                _dao.article.addTranslateTag(article.id)
-              } else {
-                _dao.article.removeTranslateTag(article.id, e.toString())
-              }
-            }}
+          <Tabs className={styles.tab} activeKey={currentTag}
+            type='card'
+            // type="editable-card"
+            // onEdit={(e, action) => {
+            //   if (!article) return
+            //   const oldTags = article.translationTags
+            //   const newTags: string[] = []
+
+            //   if (action === 'add') {
+            //     let newTag = '新标签'
+            //     while (oldTags.includes(newTag)) {
+            //       newTag = newTag + '\''
+            //     }
+            //     newTags.push(...oldTags, newTag)
+            //   } else { // remove
+            //     newTags.push(...oldTags.filter(t => t !== e.toString()))
+            //   }
+
+            //   dao.article.save({
+            //     id: article.id,
+            //     translationTags: newTags
+            //   }).finally(() => refresh())
+            // }}
             items={tags.map((v, i, arr) => ({
               label: edittingTag === v ?
                 <TagEditor origin={v} onSave={(newTag) => {
+                  const originIndex = arr.findIndex(t => t === v)
+                  if (!article) return
+                  if (originIndex < 0) return
+
                   setEdittingTag(null)
-                  _dao.article.renameTranslateTag(v, newTag).finally(() => refresh())
+                  dao.translation.saveTag({
+                    articleId: article.id,
+                    oldTag: arr[originIndex],
+                    newTag: newTag
+                  }).then(() => {
+                    message.success('保存成功')
+                  }).catch(e => {
+                    console.error('save tag error', e);
+                    message.error('保存失败')
+                  }).finally(() =>
+                    refresh()
+                  )
                 }} /> :
                 <div onDoubleClick={() => setEdittingTag(v)}>{v}</div>,
               key: v,
-              closable: true,
+              closable: tags.length > 1,
             }))}
             onChange={k => setCurrentTag(k)}
           />

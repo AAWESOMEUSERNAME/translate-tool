@@ -1,6 +1,6 @@
 import { Button, Form, Input, message, Modal } from "antd"
 import React from "react"
-import _dao from "renderer/utils/dao"
+import dao from "renderer/utils/dao"
 import styles from "./RepositoryEditModal.module.scss"
 
 const { Item } = Form
@@ -23,7 +23,7 @@ const RepositoryEditModal: React.FC<RepositoryEditModalProps> = ({ repo, onClose
       initialValues={repo}
       autoComplete="off"
       onFinish={(v) => {
-        _dao.repo.save(v)
+        dao.repo.save(v)
           .then(() => {
             message.success('保存成功')
             onClose()
@@ -34,7 +34,9 @@ const RepositoryEditModal: React.FC<RepositoryEditModalProps> = ({ repo, onClose
           })
       }}
     >
-      <Item hidden name='id' />
+      <Item label='id' name='id' style={{display: 'none'}}>
+        <Input />
+      </Item>
       <Item label='项目名' name='name' rules={[{ required: true, message: '项目名不能为空' }]} >
         <Input />
       </Item>

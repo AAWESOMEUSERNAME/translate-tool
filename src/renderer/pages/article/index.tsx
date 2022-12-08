@@ -1,34 +1,47 @@
 import { Button, Divider, Empty, message, Modal, Space, Typography } from "antd"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { LoadingMask } from "renderer/components/Mask"
 import Page from "renderer/components/Page"
-import { useRepoList } from "renderer/redux/slice/modelSlice"
-import ArticleCard from "./ArticleCard"
-import styles from "./index.module.scss"
-import { RollbackOutlined } from '@ant-design/icons';
 import { PAGE } from "renderer/constants/path"
+import { loadArticles, useArticleList } from "renderer/redux/slice/modelSlice"
+import dao from "renderer/utils/dao"
+import { useAppDispatch } from "renderer/utils/hooks"
+import ArticleCard from "./ArticleCard"
 import ArticleEditModal from "./ArticleEditModal"
 import ArticleExportModal from "./ArticleExportModal"
-import _dao from "renderer/utils/dao"
+import styles from "./index.module.scss"
 const { Title } = Typography
 
 export type ArticleListProps = {}
 
 const ArticleList: React.FC<ArticleListProps> = (props) => {
   const { state } = useLocation()
-  const { repositoryId } = state
-  const currentRepo = useRepoList().data.find(repo => repo.id === repositoryId)
+  const { repositoryId, repositoryName } = state
   const navigate = useNavigate()
-  const articles = currentRepo?.articles || []
 
   const [edittingArticle, setEdittingArticle] = useState<Partial<DTO.ArticleInfo> | null>()
-  const [operating, setOperating] = useState<{ id: number, name: string, type: 'delete' | 'export' } | null>(null)
+  const [operating, setOperating] = useState<{ id: number, name: string, tags?: string[], type: 'delete' | 'export' } | null>(null)
   const [waitting, setWaitting] = useState(false)
+
+  const dispatch = useAppDispatch()
+  const { loading: listLoading, data: articles } = useArticleList()
+  console.log('articles', articles);
+
+
+  const refresh = () => {
+    dispatch(loadArticles(repositoryId))
+  }
+
+  useEffect(() => {
+    dispatch(loadArticles(repositoryId))
+  }, [repositoryId])
 
   return <Page>
     <div className={styles.container}>
+      {listLoading && <LoadingMask />}
       <div className={styles.title}>
-        <Title>{currentRepo?.name}</Title>
+        <Title>{repositoryName}</Title>
         <Space>
           <Button onClick={() => navigate(PAGE.REPO)}>返回仓库列表</Button>
           <Button type="primary" onClick={() => setEdittingArticle({})}>添加文章</Button>
@@ -45,7 +58,10 @@ const ArticleList: React.FC<ArticleListProps> = (props) => {
           />)}
       </div>
     </div>
-    {edittingArticle && <ArticleEditModal article={edittingArticle} onClose={() => setEdittingArticle(null)} />}
+    {edittingArticle && <ArticleEditModal repoId={repositoryId} article={edittingArticle} onClose={() => {
+      setEdittingArticle(null)
+      refresh()
+    }} />}
     {operating !== null && operating.type === 'export' && <ArticleExportModal id={operating.id} name={operating.name} onClose={() => setOperating(null)} />}
     {operating !== null && operating.type === 'delete' &&
       <Modal open
@@ -57,9 +73,10 @@ const ArticleList: React.FC<ArticleListProps> = (props) => {
         }}
         onOk={() => {
           setWaitting(true)
-          _dao.article.remove(operating.id).then(() => {
+          dao.article.remove(operating.id).then(() => {
             message.success('删除成功')
             setOperating(null)
+            refresh()
           }).catch(e => {
             console.error(e);
             message.error('删除失败')

@@ -16,13 +16,13 @@ declare namespace Model {
     paragraphes: Paragraph[]
     description: string
     progress: number
-    translationTags: string[]
     coverPath?: string
     status: 'translating' | 'confirmed' // 翻译中 | 已定稿
   }
 
   interface Paragraph extends ModelObject {
     content: string
+    orderNo: number
     finalTranslation?: string
     translation: Translation[]
   }

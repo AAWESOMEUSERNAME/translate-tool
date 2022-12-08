@@ -12,28 +12,9 @@ import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
-import sqlite from 'sqlite3';
+import registerListener from './controller';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
-
-const sqlite3 = sqlite.verbose();
-const db = new sqlite3.Database(':memory:');
-
-db.serialize(() => {
-  db.run('CREATE TABLE lorem (info TEXT)');
-
-  const stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-  for (let i = 0; i < 10; i += 1) {
-    stmt.run(`Ipsum ${i}`);
-  }
-  stmt.finalize();
-
-  db.each('SELECT rowid AS id, info FROM lorem', (_err, row) => {
-    console.log(`${row.id}: ${row.info}`);
-  });
-});
-
-db.close();
+import { getAssetPath, resolveHtmlPath } from './util';
 
 class AppUpdater {
   constructor() {
@@ -45,11 +26,7 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
+registerListener(ipcMain)
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -66,7 +43,7 @@ if (isDebug) {
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'];
+  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
 
   return installer
     .default(
@@ -74,14 +51,6 @@ const installExtensions = async () => {
       forceDownload
     )
     .catch(console.log);
-};
-
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'assets')
-  : path.join(__dirname, '../../assets');
-
-const getAssetPath = (...paths: string[]): string => {
-  return path.join(RESOURCES_PATH, ...paths);
 };
 
 const createWindow = async () => {
@@ -97,6 +66,7 @@ const createWindow = async () => {
     minWidth: 500,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      webSecurity: app.isPackaged,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -119,8 +89,12 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  if (isDebug) {
+    const menuBuilder = new MenuBuilder(mainWindow);
+    menuBuilder.buildMenu();
+  } else {
+    Menu.setApplicationMenu(null)
+  }
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {

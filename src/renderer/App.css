@@ -8,22 +8,27 @@
   --success-color: #52c41a;
   --error-color: #f5222d;
   --warning-color: #faad14;
+
+  --gray-5: #d9d9d9;
+  --gray-6: #bfbfbf;
+  --gray-7: #8c8c8c;
+  --gray-8: #595959;
 }
 
 ::-webkit-scrollbar-track
 {
-	background-color: #d9d9d9;
+	background-color: var(--gray-5);
 	border-radius: 5px;
 }
 
 ::-webkit-scrollbar
 {
 	width: 5px;
-	background-color: #d9d9d9;
+	background-color: var(--gray-5);
 }
 
 ::-webkit-scrollbar-thumb
 {
 	border-radius: 5px;
-	background-color: #595959;
+	background-color: var(--gray-8);
 }

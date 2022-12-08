@@ -1,0 +1,25 @@
+.container{
+  padding: 2em 0 0 0;
+}
+.item{
+  display: flex;
+  margin-bottom: 1em;
+
+  textarea{
+    resize: none;
+  }
+
+  .item__bar{
+    padding: 0 0.5em;
+    margin-right: 0.5em;
+    width: 2em;
+    cursor: pointer;
+    border-radius: 0.5em;
+    transition: background-color 0.25s;
+  }
+
+  .item__bar:hover{
+    background-color: var(--gray-5);
+    cursor: pointer;
+  }
+}
