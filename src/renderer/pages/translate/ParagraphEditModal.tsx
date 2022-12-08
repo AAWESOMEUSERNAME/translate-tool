@@ -42,9 +42,7 @@ const Paragraph = ({ p, articleId }: { p: Model.Paragraph, articleId: number }) 
     <Input.TextArea value={value} rows={4} onChange={(e) => setValue(e.target.value)} onBlur={() => {
       dao.paragraph.save({
         id: p.id,
-        articleId: articleId,
         text: value,
-        orderNo: p.orderNo
       })
     }} />
   </div>

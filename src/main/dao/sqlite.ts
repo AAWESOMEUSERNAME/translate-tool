@@ -221,11 +221,11 @@ export class ParagraphDao implements IParagraphDao {
     })()
   }
 
-  save({ id, text, orderNo, articleId }: RequestParams.ParagraphSave) {
+  save({ id, text, articleId }: RequestParams.ParagraphSave) {
     const db = _pool.getDb()
 
     if (id) {
-      db.prepare('update paragraph set content=?,orderNo=?,updatedTime where id =? and deleted <> 1').run(text, orderNo, nowStr(), id)
+      db.prepare('update paragraph set content=?,updatedTime=? where id =? and deleted <> 1').run(text, nowStr(), id)
     } else {
       db.prepare('insert into paragraph(createdTime, updatedTime, content, articleId) values(?,?,?,?)').run(nowStr(), nowStr(), text, articleId)
     }

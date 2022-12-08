@@ -33,7 +33,6 @@ declare namespace RequestParams {
     id?: number
     articleId?: number
     text: string
-    orderNo: number
   }
 
   type ParagraphReOrder = {
