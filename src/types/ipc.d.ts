@@ -13,7 +13,8 @@ declare namespace IPC {
     '/article/export': Msg<RequestParams.ArticleExport, void>
     '/article/save': Msg<RequestParams.ArticleSave, void>
     '/article/detail': Msg<number, Model.Article>
-    '/paragraph/save': Msg<RequestParams.ParagraphSave, void>
+    '/paragraph/save': Msg<RequestParams.ParagraphSave, number>
+    '/paragraph/delete': Msg<number, void>
     '/paragraph/reorder': Msg<RequestParams.ParagraphReOrder, void>
     '/translation/tag/save': Msg<RequestParams.TagSave, void>
     '/translation/tag/list': Msg<number, string[]>

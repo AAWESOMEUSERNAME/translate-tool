@@ -14,8 +14,9 @@ export interface IArticleDao {
   detail: (id: number) => Model.Article
 }
 export interface IParagraphDao {
+  delete: (id: number) => void
   reOrder: (params: RequestParams.ParagraphReOrder) => void
-  save: (params: RequestParams.ParagraphSave) => void
+  save: (params: RequestParams.ParagraphSave) => number
 }
 export interface ITranslationDao {
   saveTag: (params: RequestParams.TagSave) => void

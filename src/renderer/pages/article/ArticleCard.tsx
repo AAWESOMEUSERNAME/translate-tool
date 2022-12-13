@@ -27,8 +27,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ id, name, description, coverP
         </Button>
         <Button className={styles.mask__menu__item} type='primary' shape='circle' onClick={() => onEdit()}>编辑</Button>
         <Button className={styles.mask__menu__item} type='primary' shape='circle' onClick={() => onExport()}>导出</Button>
-        <Button className={styles.mask__menu__item} type='primary' shape='circle' disabled>合并</Button>
-        <Button className={styles.mask__menu__item} type='primary' shape='circle' disabled>定稿</Button>
+        {/* <Button className={styles.mask__menu__item} type='primary' shape='circle' disabled>合并</Button>
+        <Button className={styles.mask__menu__item} type='primary' shape='circle' disabled>定稿</Button> */}
         <Button className={styles.mask__menu__item} type='primary' danger shape='circle' onClick={() => onDelete()}>删除</Button>
       </div>
     </Mask>}

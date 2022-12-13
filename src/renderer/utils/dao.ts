@@ -41,7 +41,8 @@ const dao = {
   },
   paragraph: {
     reOrder: requestIPCFn('/paragraph/reorder'),
-    save: requestIPCFn('/paragraph/save')
+    save: requestIPCFn('/paragraph/save'),
+    delete: requestIPCFn('/paragraph/delete')
   },
   translation: {
     listTag: requestIPCFn('/translation/tag/list'),

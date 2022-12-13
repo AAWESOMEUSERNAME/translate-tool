@@ -221,13 +221,22 @@ export class ParagraphDao implements IParagraphDao {
     })()
   }
 
+  delete(id: number) {
+    _pool.getDb().prepare('update paragraph set deleted = 1 where id=?').run(id)
+  }
+
   save({ id, text, articleId }: RequestParams.ParagraphSave) {
     const db = _pool.getDb()
 
     if (id) {
       db.prepare('update paragraph set content=?,updatedTime=? where id =? and deleted <> 1').run(text, nowStr(), id)
+      return id
     } else {
-      db.prepare('insert into paragraph(createdTime, updatedTime, content, articleId) values(?,?,?,?)').run(nowStr(), nowStr(), text, articleId)
+      const { maxNo = 0 } = db.prepare('select max(orderNo) maxNo from paragraph where articleId=?').get(articleId)
+      const { lastInsertRowid } = db.prepare('insert into paragraph(createdTime, updatedTime, content, articleId, orderNo) values(?,?,?,?,?)')
+        .run(nowStr(), nowStr(), text, articleId, maxNo + 1)
+      const record = db.prepare('select id from paragraph where rowid = ?').get(lastInsertRowid)
+      return record.id
     }
   }
 }

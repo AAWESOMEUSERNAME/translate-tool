@@ -1,25 +1,43 @@
-.container{
+.container {
   padding: 2em 0 0 0;
 }
-.item{
+
+.item {
   display: flex;
   margin-bottom: 1em;
 
-  textarea{
+  textarea {
     resize: none;
   }
+}
 
-  .item__bar{
-    padding: 0 0.5em;
-    margin-right: 0.5em;
-    width: 2em;
-    cursor: pointer;
-    border-radius: 0.5em;
-    transition: background-color 0.25s;
-  }
+.item__bar {
+  padding: 0 0.5em;
+  margin-right: 0.5em;
+  width: 2em;
+}
 
-  .item__bar:hover{
+.item__bar__btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 1.5em;
+  width: 1.5em;
+  border-radius: 0.5em;
+  transition: background-color 0.25s;
+
+  &:hover {
     background-color: var(--gray-5);
-    cursor: pointer;
   }
+}
+
+.item__bar__move {
+  @extend .item__bar__btn;
+  cursor: move;
+}
+
+.item__bar__delete{
+  @extend .item__bar__btn;
+  cursor: pointer;
 }

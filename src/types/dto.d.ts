@@ -7,6 +7,7 @@ declare namespace DTO {
   type RepositoryInfo = Omit<Model.Repository, 'articles'> & { totalNum: number, uncompleted: number }
   type ArticleInfo = Omit<Model.Article, 'paragraphes'>
   type ArticleExportType = 'database' | 'translated' | 'raw' | 'raw_translated'
+  type ParagraphInfo = Pick<Model.Paragraph, 'id' | 'content' | 'orderNo'>
 }
 
 declare namespace RequestParams {

@@ -21,6 +21,7 @@ const routeMap: { [T in keyof IPC.MsgRouteMap]: MsgHandler<IPC.MsgRouteMap[T]['r
   },
   '/article/detail': async (id) => articleDao.detail(id),
   '/paragraph/save': async (params) => paragraphDao.save(params),
+  '/paragraph/delete':async (id) => paragraphDao.delete(id),
   '/paragraph/reorder': async (params) => paragraphDao.reOrder(params),
   '/translation/tag/save': async (params) => translationDao.saveTag(params),
   '/translation/tag/list': async (params) => translationDao.listTag(params),

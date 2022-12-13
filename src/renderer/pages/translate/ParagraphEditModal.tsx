@@ -1,6 +1,6 @@
-import { Input, message, Modal, Space } from "antd"
+import { Button, Input, message, Modal } from "antd"
 import React, { useEffect, useState } from "react"
-import { BarsOutlined } from '@ant-design/icons';
+import { BarsOutlined, CloseOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { LoadingMask } from "renderer/components/Mask"
 import dao from "renderer/utils/dao"
 import {
@@ -21,7 +21,9 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styles from "./ParagraphEditModal.module.scss"
 
-const Paragraph = ({ p, articleId }: { p: Model.Paragraph, articleId: number }) => {
+const { confirm } = Modal
+
+const Paragraph = ({ p, onDelete }: { p: DTO.ParagraphInfo, onDelete: (id: number) => void }) => {
   const [value, setValue] = useState(p.content)
   const {
     attributes,
@@ -36,8 +38,11 @@ const Paragraph = ({ p, articleId }: { p: Model.Paragraph, articleId: number }) 
   };
 
   return <div className={styles.item} ref={setNodeRef} style={style} {...attributes}>
-    <div className={styles.item__bar} {...listeners}>
-      <BarsOutlined />
+    <div className={styles.item__bar}>
+      <BarsOutlined className={styles.item__bar__move} {...listeners} />
+      <div className={styles.item__bar__delete} onClick={() => onDelete(p.id)}>
+        <CloseOutlined />
+      </div>
     </div>
     <Input.TextArea value={value} rows={4} onChange={(e) => setValue(e.target.value)} onBlur={() => {
       dao.paragraph.save({
@@ -48,7 +53,7 @@ const Paragraph = ({ p, articleId }: { p: Model.Paragraph, articleId: number }) 
   </div>
 }
 
-const ParagraphList = ({ articleId, ps }: { articleId: number, ps: Model.Paragraph[] }) => {
+const ParagraphList = ({ articleId, ps }: { articleId: number, ps: DTO.ParagraphInfo[] }) => {
   const [paragraphes, setParagraphes] = useState(ps)
 
   useEffect(() => {
@@ -61,6 +66,36 @@ const ParagraphList = ({ articleId, ps }: { articleId: number, ps: Model.Paragra
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+
+  const handleAdd = () => {
+    dao.paragraph.save({
+      articleId,
+      text: '',
+    }).then((id) => {
+      setParagraphes(paragraphes.concat([{
+        id: id,
+        content: '',
+        orderNo: paragraphes.length,
+      }]))
+    })
+  }
+
+  const handleDelete = (id: number) => {
+    confirm({
+      title: '删除？',
+      content: '确认删除该段落么？',
+      icon: <ExclamationCircleFilled />,
+      onOk: () => {
+        return dao.paragraph.delete(id).then(() => {
+          setParagraphes((ps) => {
+            const targetIndex = ps.findIndex(p => p.id === id)
+            return ps.slice(0, targetIndex).concat(ps.slice(targetIndex + 1))
+          })
+        })
+      }
+    })
+  }
 
   return <DndContext
     sensors={sensors}
@@ -83,7 +118,8 @@ const ParagraphList = ({ articleId, ps }: { articleId: number, ps: Model.Paragra
       strategy={verticalListSortingStrategy}
     >
       <div className={styles.container}>
-        {paragraphes.map(p => <Paragraph key={p.id} p={p} articleId={articleId} />)}
+        {paragraphes.map(p => <Paragraph key={p.id} p={p} onDelete={(id) => handleDelete(id)} />)}
+        <Button block onClick={handleAdd}>添加段落</Button>
       </div>
     </SortableContext>
   </DndContext>
